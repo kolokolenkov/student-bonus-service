@@ -1,2 +1,44 @@
 services:
-  
+  postgres:
+    image: postgres:17
+    container_name: student-bonus-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: student_bonus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: student-bonus-api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: student-bonus-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: pass
+    ports:
+      - "8089:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
